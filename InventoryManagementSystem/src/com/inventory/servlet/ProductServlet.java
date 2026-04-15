@@ -107,11 +107,19 @@ public class ProductServlet extends HttpServlet {
      */
     private void showEditForm(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        int id = Integer.parseInt(request.getParameter("id"));
-        Product product = productDAO.getProductById(id);
-        request.setAttribute("product", product);
-        RequestDispatcher dispatcher = request.getRequestDispatcher("edit-product.jsp");
-        dispatcher.forward(request, response);
+        try {
+            int id = Integer.parseInt(request.getParameter("id"));
+            Product product = productDAO.getProductById(id);
+            if (product == null) {
+                response.sendRedirect("products");
+                return;
+            }
+            request.setAttribute("product", product);
+            RequestDispatcher dispatcher = request.getRequestDispatcher("edit-product.jsp");
+            dispatcher.forward(request, response);
+        } catch (NumberFormatException e) {
+            response.sendRedirect("products");
+        }
     }
 
     /**
@@ -119,20 +127,24 @@ public class ProductServlet extends HttpServlet {
      */
     private void insertProduct(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
-        String name = request.getParameter("name");
-        String category = request.getParameter("category");
-        int quantity = Integer.parseInt(request.getParameter("quantity"));
-        double price = Double.parseDouble(request.getParameter("price"));
-        String description = request.getParameter("description");
+        try {
+            String name = request.getParameter("name");
+            String category = request.getParameter("category");
+            int quantity = Integer.parseInt(request.getParameter("quantity"));
+            double price = Double.parseDouble(request.getParameter("price"));
+            String description = request.getParameter("description");
 
-        Product product = new Product();
-        product.setName(name);
-        product.setCategory(category);
-        product.setQuantity(quantity);
-        product.setPrice(price);
-        product.setDescription(description);
+            Product product = new Product();
+            product.setName(name);
+            product.setCategory(category);
+            product.setQuantity(quantity);
+            product.setPrice(price);
+            product.setDescription(description);
 
-        productDAO.addProduct(product);
+            productDAO.addProduct(product);
+        } catch (NumberFormatException e) {
+            // Invalid numeric input; redirect back to list
+        }
         response.sendRedirect("products");
     }
 
@@ -141,22 +153,26 @@ public class ProductServlet extends HttpServlet {
      */
     private void updateProduct(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
-        int id = Integer.parseInt(request.getParameter("id"));
-        String name = request.getParameter("name");
-        String category = request.getParameter("category");
-        int quantity = Integer.parseInt(request.getParameter("quantity"));
-        double price = Double.parseDouble(request.getParameter("price"));
-        String description = request.getParameter("description");
+        try {
+            int id = Integer.parseInt(request.getParameter("id"));
+            String name = request.getParameter("name");
+            String category = request.getParameter("category");
+            int quantity = Integer.parseInt(request.getParameter("quantity"));
+            double price = Double.parseDouble(request.getParameter("price"));
+            String description = request.getParameter("description");
 
-        Product product = new Product();
-        product.setId(id);
-        product.setName(name);
-        product.setCategory(category);
-        product.setQuantity(quantity);
-        product.setPrice(price);
-        product.setDescription(description);
+            Product product = new Product();
+            product.setId(id);
+            product.setName(name);
+            product.setCategory(category);
+            product.setQuantity(quantity);
+            product.setPrice(price);
+            product.setDescription(description);
 
-        productDAO.updateProduct(product);
+            productDAO.updateProduct(product);
+        } catch (NumberFormatException e) {
+            // Invalid numeric input; redirect back to list
+        }
         response.sendRedirect("products");
     }
 
@@ -165,8 +181,12 @@ public class ProductServlet extends HttpServlet {
      */
     private void deleteProduct(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
-        int id = Integer.parseInt(request.getParameter("id"));
-        productDAO.deleteProduct(id);
+        try {
+            int id = Integer.parseInt(request.getParameter("id"));
+            productDAO.deleteProduct(id);
+        } catch (NumberFormatException e) {
+            // Invalid ID; redirect back to list
+        }
         response.sendRedirect("products");
     }
 }
